@@ -35,12 +35,12 @@
 <div id="map"></div>
 <input type="submit" id="submit">
 <script>
-    var ab = [];
+    var markers = [];
     var centralRussia = {lat: 57.452744, lng: 33.238945};
 
     function initMap() {
         var directionsService = new google.maps.DirectionsService;
-        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
             center: centralRussia
@@ -58,7 +58,9 @@
         });
 
         google.maps.event.addListener(drawingManager, 'markercomplete', function (marker) {
-            ab.push(marker.getPosition());
+            var lastChar = markers.length == 0 ? String.fromCharCode(65) : String.fromCharCode(markers[markers.length - 1].getLabel().charCodeAt(0) + 1);
+            marker.setLabel(lastChar);
+            markers.push(marker);
         });
 
         document.getElementById('submit').addEventListener('click', function () {
@@ -72,14 +74,15 @@
     function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         var waypoitns = [];
 
-        ab.slice(1, ab.length - 1).forEach(function (e) {
-            waypoitns.push({location: e});
+        markers.slice(1, markers.length - 1).forEach(function (e) {
+            waypoitns.push({location: e.getPosition()});
         });
 
         directionsService.route({
-            origin: ab[0],
+            origin: markers[0].getPosition(),
             waypoints: waypoitns,
-            destination: ab[ab.length - 1],
+//            optimizeWaypoints: true,
+            destination: markers[markers.length - 1].getPosition(),
             travelMode: google.maps.TravelMode.DRIVING
         }, function (response, status) {
             if (status === google.maps.DirectionsStatus.OK) {
