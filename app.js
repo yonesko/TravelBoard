@@ -2,7 +2,7 @@ var directionsService;
 var directionsDisplay
 var map;
 var radar_radius = 10000;
-var radarSearches = 25;
+var max_radar_searches = 10;
 var markers = [];
 var centralRussia = {lat: 57.452744, lng: 33.238945};
 var reutov;
@@ -44,7 +44,7 @@ function initMap() {
     directionsDisplay.setMap(map);
     drawingManager.setMap(map);
 }
-function addMarker(place) {
+function addPlaceMarker(place) {
     var marker = new google.maps.Marker({
         map: map,
         position: place.geometry.location,
@@ -94,26 +94,67 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
 }
 
 function radarAlongRoute(route) {
-    var step = route.overview_path.length < radarSearches ? 1 : Math.floor(route.overview_path.length / radarSearches);
+    var step = Math.ceil(route.overview_path.length / max_radar_searches);
+    var cou = 0;
     for (var i = 0; i < route.overview_path.length; i += step) {
-        new google.maps.Marker({
-            position: route.overview_path[i],
-            map: map
-        });
+        cou++;
+        // new google.maps.Marker({
+        //     position: route.overview_path[i],
+        //     map: map
+        // });
+
+
         placesService.radarSearch({
-            location: route.overview_path[i],
-            radius: radar_radius,
-            type: 'museum'
-        }, function (results, status) {
-            if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                // alert('radarAlongRoute' + status);
-                return;
-            }
-            for (var i = 0, result; result = results[i]; i++) {
-                addMarker(result);
-            }
-        })
+                location: route.overview_path[i],
+                radius: radar_radius,
+                type: 'museum'
+            }, (function (center) {
+                return function (places, status) {
+                    console.log(status)
+                    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                        console.log('radarAlongRoute' + status);
+                        return;
+                    }
+                    for (var i = 0, place; place = places[i]; i++) {
+                        addPlaceMarker(place);
+                    }
+
+                    console.log('CIRCLE')
+                    new google.maps.Circle({
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: '#FF0000',
+                        fillOpacity: 0.35,
+                        map: map,
+                        center: center,
+                        radius: radar_radius
+                    });
+                }
+            })(route.overview_path[i])
+        );
+
+
+        // window.setTimeout(placesService.radaradarSearch,
+        //     (1000 / max_radar_searches) * cou,
+        //     {
+        //         location: route.overview_path[i],
+        //         radius: radar_radius,
+        //         type: 'museum'
+        //     },
+        //     function (places, status) {
+        //         console.log(status)
+        //         if (status !== google.maps.places.PlacesServiceStatus.OK) {
+        //             console.log('radarAlongRoute' + status);
+        //             return;
+        //         }
+        //         for (var i = 0, result; result = places[i]; i++) {
+        //             addMarker(result);
+        //         }
+        //     }
+        // );
     }
+    console.log(cou);
 }
 
 function getSumDistance(route) {
