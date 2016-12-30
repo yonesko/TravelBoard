@@ -13,6 +13,7 @@ var directionsDisplay;
 var placesService;
 var infoWindow;
 var markers = [];
+var placesList = [];
 
 function initMap() {
     infoWindow = new google.maps.InfoWindow();
@@ -133,7 +134,8 @@ function radar(center) {
                                         console.log('getDetails' + status);
                                         return;
                                     }
-                                    document.getElementById("found_places_list").innerHTML += placeDetail.name + '<br>';
+                                    placesList.push(placeDetail);
+                                    addPlaceToList(placeDetail);
                                 })
                             };
                         }(place),
@@ -142,6 +144,26 @@ function radar(center) {
             }
         )
     }
+}
+
+function addPlaceToList(placeDetail) {
+    var placeElem = document.createElement('label');
+    placeElem.setAttribute('id', placesList.length - 1);
+    placeElem.addEventListener('mouseover', function (e) {
+        this.marker = new google.maps.Marker({
+            position: placeDetail.geometry.location,
+            map: map,
+            icon: 'images/beachflag.png'
+        });
+    });
+    placeElem.addEventListener('mouseout', function (e) {
+        if (this.marker) {
+            this.marker.setMap(null);
+            this.marker = null;
+        }
+    });
+    placeElem.innerHTML = placeDetail.name + '<br>';
+    document.getElementById("found_places_list").appendChild(placeElem);
 }
 
 function Test() {
