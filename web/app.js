@@ -2,16 +2,16 @@ const
     kilo = 1000,
     second_ms = 1000,
     radar_radius_m = 15 * kilo,
-    radar_second_qouta = 10,
+    radar_second_qouta = 2,
     centralRussia = {lat: 57.452744, lng: 33.238945},
     reutov = {lat: 55.759970, lng: 37.859058};
 
+var map;
 var directionsService;
 var directionsDisplay;
-var map;
-var markers = [];
 var placesService;
 var infoWindow;
+var markers = [];
 
 function initMap() {
     infoWindow = new google.maps.InfoWindow();
@@ -34,6 +34,9 @@ function initMap() {
         markerOptions: {editable: true}
     });
 
+    directionsDisplay.setMap(map);
+    drawingManager.setMap(map);
+
     google.maps.event.addListener(drawingManager, 'markercomplete', function (marker) {
         var lastChar = markers.length == 0 ? String.fromCharCode(65) : String.fromCharCode(markers[markers.length - 1].getLabel().charCodeAt(0) + 1);
         marker.setLabel(lastChar);
@@ -43,9 +46,6 @@ function initMap() {
     document.getElementById('submit').addEventListener('click', function () {
         calculateAndDisplayRoute(directionsService, directionsDisplay);
     });
-
-    directionsDisplay.setMap(map);
-    drawingManager.setMap(map);
 }
 function addPlaceMarker(place) {
     var marker = new google.maps.Marker({
@@ -88,7 +88,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         if (status === google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             var route = response.routes[0];
-            document.getElementById('distance').innerHTML = distance(route) / 1000;
+            document.getElementById('distance').innerHTML = distance(route) / 1000 + ' км.';
             findPlacesAlongRoute(route);
         } else {
             window.alert('Directions request failed due to ' + status);
@@ -153,9 +153,9 @@ function Test() {
 }
 
 function findPlacesAlongRoute(route) {
-    var dist = distance(route)
+    var dist = distance(route);
     var step = Math.ceil((2 * radar_radius_m) / (dist / route.overview_path.length));
-    var delay_ms = (second_ms / radar_second_qouta) * 1.3;
+    var delay_ms = (second_ms / radar_second_qouta) * 1.1;
 
     for (var i = 0, cou = 0; i < route.overview_path.length; i += step, cou++) {
         window.setTimeout(
