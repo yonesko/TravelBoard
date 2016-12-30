@@ -1,19 +1,20 @@
+const
+    kilo = 1000,
+    second_ms = 1000,
+    radar_radius_m = 15 * kilo,
+    radar_second_qouta = 10,
+    centralRussia = {lat: 57.452744, lng: 33.238945},
+    reutov = {lat: 55.759970, lng: 37.859058};
+
 var directionsService;
 var directionsDisplay;
 var map;
-var kilo = 1000;
-var radar_radius_m = 15 * kilo;
-var radar_time_ms = 10 * kilo;
-var max_radar_searches = 40;
 var markers = [];
-var centralRussia = {lat: 57.452744, lng: 33.238945};
-var reutov;
 var placesService;
 var infoWindow;
 
 function initMap() {
     infoWindow = new google.maps.InfoWindow();
-    reutov = new google.maps.LatLng(55.759970, 37.859058);
     directionsService = new google.maps.DirectionsService;
     directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
     map = new google.maps.Map(document.getElementById('map'), {
@@ -89,7 +90,6 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
             var route = response.routes[0];
             document.getElementById('distance').innerHTML = distance(route) / 1000;
             findPlacesAlongRoute(route);
-            window.setTimeout('console.log("limitErrors= "+limitErrors)', radar_time_ms)
         } else {
             window.alert('Directions request failed due to ' + status);
         }
@@ -130,16 +130,37 @@ function radar(center) {
     }
 }
 
+function Test() {
+    map.setCenter(reutov);
+    map.setZoom(15);
+
+    for (var i = 0; i < 100; i++) {
+        placesService.radarSearch({
+                location: reutov,
+                radius: radar_radius_m,
+                type: 'museum'
+            }, function (places, status) {
+                console.log(status);
+                // if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+                //     limitErrors++;
+                // }
+                // for (var i = 0, place; place = places[i]; i++) {
+                //     addPlaceMarker(place);
+                // }
+            }
+        )
+    }
+}
+
 function findPlacesAlongRoute(route) {
     var dist = distance(route)
-    var step = Math.ceil(route.overview_path.length / max_radar_searches);
-    var cou = 0;
-    for (var i = 0; i < route.overview_path.length; i += step) {
-        cou++;
+    var step = Math.ceil((2 * radar_radius_m) / (dist / route.overview_path.length));
+    var delay_ms = (second_ms / radar_second_qouta) * 1.3;
 
+    for (var i = 0, cou = 0; i < route.overview_path.length; i += step, cou++) {
         window.setTimeout(
             radar(route.overview_path[i]),
-            cou * (radar_time_ms / max_radar_searches)
+            cou * delay_ms
         );
     }
 }
