@@ -1,10 +1,11 @@
 const
     kilo = 1000,
     second_ms = 1000,
-    radar_radius_m = 15 * kilo,
+    radar_radius_m = 20 * kilo,
     radar_second_qouta = 2,
     centralRussia = {lat: 57.452744, lng: 33.238945},
-    reutov = {lat: 55.759970, lng: 37.859058};
+    reutov = {lat: 55.759970, lng: 37.859058},
+    places_detail_develop_quota = 10;
 
 var map;
 var directionsService;
@@ -88,14 +89,13 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         if (status === google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
             var route = response.routes[0];
-            document.getElementById('distance').innerHTML = distance(route) / 1000 + ' км.';
+            document.getElementById('distance').innerHTML = 'distance=' + distance(route) / 1000 + ' км.';
             findPlacesAlongRoute(route);
         } else {
             window.alert('Directions request failed due to ' + status);
         }
     });
 }
-var limitErrors = 0;
 
 function radar(center) {
     return function () {
@@ -115,41 +115,49 @@ function radar(center) {
                 radius: radar_radius_m,
                 type: 'museum'
             }, function (places, status) {
-                if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-                    limitErrors++;
-                }
                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
                     console.log('findPlacesAlongRoute' + status);
                     return;
                 }
-                for (var i = 0, place; place = places[i]; i++) {
-                    addPlaceMarker(place);
-                }
+
+                var delay_ms = (second_ms / radar_second_qouta) * 1.1;
+                places.forEach(addPlaceMarker);
+                // for (var i = 0, place; place = places[i]; i++) {
+                //     addPlaceMarker(place);
+                // window.setTimeout(
+                //     function (place) {
+                //         return function () {
+                //             placesService.getDetails(place, function (placeDetail, status) {
+                //                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                //                     console.log('getDetails' + status);
+                //                     return;
+                //                 }
+                //                 document.getElementById("found_places_list").innerHTML += placeDetail.name + '<br>';
+                //             })
+                //         };
+                //     }(place),
+                //     i * delay_ms
+                // );
+                // }
             }
         )
     }
 }
 
 function Test() {
-    map.setCenter(reutov);
-    map.setZoom(15);
+    var tver = {lat: 56.51, lng: 35.55};
+    var torzok = {lat: 57.02, lng: 34.58};
 
-    for (var i = 0; i < 100; i++) {
-        placesService.radarSearch({
-                location: reutov,
-                radius: radar_radius_m,
-                type: 'museum'
-            }, function (places, status) {
-                console.log(status);
-                // if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-                //     limitErrors++;
-                // }
-                // for (var i = 0, place; place = places[i]; i++) {
-                //     addPlaceMarker(place);
-                // }
-            }
-        )
-    }
+    markers.push(new google.maps.Marker({
+        map: map,
+        position: tver
+    }));
+    markers.push(new google.maps.Marker({
+        map: map,
+        position: torzok
+    }));
+
+    calculateAndDisplayRoute(directionsService, directionsDisplay);
 }
 
 function findPlacesAlongRoute(route) {
@@ -163,6 +171,10 @@ function findPlacesAlongRoute(route) {
             cou * delay_ms
         );
     }
+    window.setTimeout(
+        radar(route.overview_path[route.overview_path.length - 1]),
+        cou * delay_ms
+    );
 }
 function distance(route) {
     var sum = 0;
