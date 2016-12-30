@@ -5,7 +5,7 @@ const
     radar_second_qouta = 2,
     centralRussia = {lat: 57.452744, lng: 33.238945},
     reutov = {lat: 55.759970, lng: 37.859058},
-    places_detail_develop_quota = 10;
+    places_detail_per_point_quota = 1;
 
 var map;
 var directionsService;
@@ -102,7 +102,7 @@ function radar(center) {
         new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
-            strokeWeight: 2,
+            strokeWeight: 0,
             fillColor: '#FF0000',
             fillOpacity: 0.35,
             map: map,
@@ -122,23 +122,23 @@ function radar(center) {
 
                 var delay_ms = (second_ms / radar_second_qouta) * 1.1;
                 places.forEach(addPlaceMarker);
-                // for (var i = 0, place; place = places[i]; i++) {
-                //     addPlaceMarker(place);
-                // window.setTimeout(
-                //     function (place) {
-                //         return function () {
-                //             placesService.getDetails(place, function (placeDetail, status) {
-                //                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                //                     console.log('getDetails' + status);
-                //                     return;
-                //                 }
-                //                 document.getElementById("found_places_list").innerHTML += placeDetail.name + '<br>';
-                //             })
-                //         };
-                //     }(place),
-                //     i * delay_ms
-                // );
-                // }
+                for (var i = 0, place; i < places.length && i < places_detail_per_point_quota; i++) {
+                    place = places[i];
+                    addPlaceMarker(place);
+                    window.setTimeout(
+                        function (place) {
+                            return function () {
+                                placesService.getDetails(place, function (placeDetail, status) {
+                                    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                                        console.log('getDetails' + status);
+                                        return;
+                                    }
+                                    document.getElementById("found_places_list").innerHTML += placeDetail.name + '<br>';
+                                })
+                            };
+                        }(place),
+                        i * delay_ms);
+                }
             }
         )
     }
