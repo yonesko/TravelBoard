@@ -10,7 +10,7 @@
 <md-list>
     <md-list-item class="md-2-line" ng-repeat="place in placesList">
         <div class="md-list-item-text">
-            <h3><a href="{{place.url}}">{{place.name}}</a></h3>
+            <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
             <p>{{place.formatted_address}}</p>
             <md-list ng-repeat="photo in place.photos">
                 <md-list-item>
