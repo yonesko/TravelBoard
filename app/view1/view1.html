@@ -1,6 +1,10 @@
 <div layout="row">
-    <div>
-        <md-button ng-click="test(this.map)" class="md-raised">Test</md-button>
+    <div layout="column">
+        <md-button ng-click="test()" class="md-raised">Test</md-button>
+
+        Distance {{distance}} km.
+
     </div>
     <ng-map></ng-map>
 </div>
+<span ng-repeat="p in placesList">{{p.name}}</span>
