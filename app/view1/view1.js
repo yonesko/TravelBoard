@@ -130,7 +130,6 @@ angular.module('myApp.view1', ['ngRoute'])
                     if (status === google.maps.DirectionsStatus.OK) {
                         var route = response.routes[0];
                         $scope.distance = distance(route) / kilo;
-                        console.log($scope.distance);
                         directionsDisplay.setDirections(response);
                         findPlacesAlongRoute(route);
                     } else {
@@ -155,9 +154,8 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.placesList = [];
             $scope.distance = 0;
 
-
-            var directionsService = new google.maps.DirectionsService;
             var placesService;
+            var directionsService = new google.maps.DirectionsService;
             var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
             var markers = [];
             var mapInstance;

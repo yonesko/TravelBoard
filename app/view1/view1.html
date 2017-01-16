@@ -7,4 +7,16 @@
     </div>
     <ng-map></ng-map>
 </div>
-<span ng-repeat="p in placesList">{{p.name}}</span>
+<md-list>
+    <md-list-item class="md-2-line" ng-repeat="place in placesList">
+        <div class="md-list-item-text">
+            <h3><a href="{{place.url}}">{{place.name}}</a></h3>
+            <p>{{place.formatted_address}}</p>
+            <md-list ng-repeat="photo in place.photos">
+                <md-list-item>
+                    <img ng-src="{{photo.getUrl({'maxWidth': 400, 'maxHeight': 400})}}">
+                </md-list-item>
+            </md-list>
+        </div>
+    </md-list-item>
+</md-list>
