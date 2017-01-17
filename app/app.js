@@ -7,7 +7,8 @@ angular.module('myApp', [
     'myApp.view2',
     'myApp.version',
     'ngMap',
-    'ngMaterial'
+    'ngMaterial',
+    'vs-repeat'
 ]).config(['$locationProvider', '$routeProvider', function ($locationProvider, $routeProvider) {
     $locationProvider.hashPrefix('!');
 

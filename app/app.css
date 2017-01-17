@@ -28,3 +28,16 @@ ng-map {
     width: 800px;
     height: 600px
 }
+
+.repeater-container {
+//display: block;
+    height: 800px;
+    width: 400px;
+    overflow: auto;
+}
+
+.item {
+    /* height: 25px; */
+    width: 100%;
+    border-bottom: 1px solid #222;
+}

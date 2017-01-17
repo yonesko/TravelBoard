@@ -85,7 +85,8 @@ angular.module('myApp.view1', ['ngRoute'])
                         anchor: new google.maps.Point(10, 10),
                         scaledSize: new google.maps.Size(20, 34)
                     },
-                    title: place.name
+                    title: place.name,
+                    clicable: false
                 });
                 place.denotionMarker = new google.maps.Marker({
                     map: mapInstance,

@@ -2,8 +2,8 @@
     <div layout="column">
         <md-button ng-click="test()" class="md-raised">Test</md-button>
         Distance {{distance}} km.
-        <md-list>
-            <md-list-item class="md-2-line" ng-repeat="place in placesList"
+        <md-list vs-repeat class="repeater-container">
+            <md-list-item class="md-2-line item" ng-repeat="place in placesList"
                           ng-mouseover="place.denotionMarker.setVisible(true)"
                           ng-mouseleave="place.denotionMarker.setVisible(false)">
                 <div class="md-list-item-text">
@@ -16,6 +16,7 @@
     </div>
     <ng-map></ng-map>
 </div>
+
 <!--<md-list>-->
 <!--<md-list-item class="md-2-line" ng-repeat="place in placesList">-->
 <!--<div class="md-list-item-text">-->
