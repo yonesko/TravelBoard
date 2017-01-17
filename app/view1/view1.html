@@ -1,22 +1,31 @@
 <div layout="row">
     <div layout="column">
         <md-button ng-click="test()" class="md-raised">Test</md-button>
-
         Distance {{distance}} km.
-
+        <md-list>
+            <md-list-item class="md-2-line" ng-repeat="place in placesList"
+                          ng-mouseover="place.denotionMarker.setVisible(true)"
+                          ng-mouseleave="place.denotionMarker.setVisible(false)">
+                <div class="md-list-item-text">
+                    <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
+                    <p>{{place.formatted_address}}</p>
+                    <img ng-src="{{place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200})}}">
+                </div>
+            </md-list-item>
+        </md-list>
     </div>
     <ng-map></ng-map>
 </div>
-<md-list>
-    <md-list-item class="md-2-line" ng-repeat="place in placesList">
-        <div class="md-list-item-text">
-            <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
-            <p>{{place.formatted_address}}</p>
-            <md-list ng-repeat="photo in place.photos">
-                <md-list-item>
-                    <img ng-src="{{photo.getUrl({'maxWidth': 400, 'maxHeight': 400})}}">
-                </md-list-item>
-            </md-list>
-        </div>
-    </md-list-item>
-</md-list>
+<!--<md-list>-->
+<!--<md-list-item class="md-2-line" ng-repeat="place in placesList">-->
+<!--<div class="md-list-item-text">-->
+<!--<h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>-->
+<!--<p>{{place.formatted_address}}</p>-->
+<!--<md-list ng-repeat="photo in place.photos">-->
+<!--<md-list-item>-->
+<!--<img ng-src="{{photo.getUrl({'maxWidth': 400, 'maxHeight': 400})}}">-->
+<!--</md-list-item>-->
+<!--</md-list>-->
+<!--</div>-->
+<!--</md-list-item>-->
+<!--</md-list>-->
