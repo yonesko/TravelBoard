@@ -86,7 +86,7 @@ angular.module('myApp.view1', ['ngRoute'])
                         scaledSize: new google.maps.Size(20, 34)
                     },
                     title: place.name,
-                    clicable: false
+                    clickable: false
                 });
                 place.denotionMarker = new google.maps.Marker({
                     map: mapInstance,
@@ -114,17 +114,20 @@ angular.module('myApp.view1', ['ngRoute'])
                 $timeout(radar(route.overview_path[route.overview_path.length - 1]), cou * delay_ms);
             }
 
-            function calculateAndDisplayRoute() {
-                var waypoitns = [];
+            $scope.calculateAndDisplayRoute = function () {
+                if (waypoitns.length == 0)
+                    return;
 
-                markers.slice(1, markers.length - 1).forEach(function (e) {
-                    waypoitns.push({location: e.getPosition()});
+                var interpoints = [];
+
+                waypoitns.slice(1, waypoitns.length - 1).forEach(function (e) {
+                    interpoints.push({location: e.getPosition()});
                 });
 
                 directionsService.route({
-                    origin: markers[0].getPosition(),
-                    waypoints: waypoitns,
-                    destination: markers[markers.length - 1].getPosition(),
+                    origin: waypoitns[0].getPosition(),
+                    waypoints: interpoints,
+                    destination: waypoitns[waypoitns.length - 1].getPosition(),
                     travelMode: google.maps.TravelMode.DRIVING
                 }, function (response, status) {
                     if (status === google.maps.DirectionsStatus.OK) {
@@ -136,19 +139,22 @@ angular.module('myApp.view1', ['ngRoute'])
                         window.alert('Directions request failed due to ' + status);
                     }
                 });
-            }
+            };
 
+            $scope.markerDrawed = function (marker) {
+                waypoitns.push(marker);
+            };
             $scope.test = function () {
-                markers.push(new google.maps.Marker({
+                waypoitns.push(new google.maps.Marker({
                     position: tartu,
                     map: mapInstance
                 }));
-                markers.push(new google.maps.Marker({
+                waypoitns.push(new google.maps.Marker({
                     position: tallin,
                     map: mapInstance
                 }));
 
-                calculateAndDisplayRoute();
+                $scope.calculateAndDisplayRoute();
             };
 
             $scope.placesList = [];
@@ -157,7 +163,7 @@ angular.module('myApp.view1', ['ngRoute'])
             var placesService;
             var directionsService = new google.maps.DirectionsService;
             var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
-            var markers = [];
+            var waypoitns = [];
             var mapInstance;
             var debug = false;
             var placeTypesForSearch = 'museum';
