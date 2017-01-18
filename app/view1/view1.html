@@ -4,8 +4,9 @@
         <md-radio-button ng-repeat="type in supported_place_types" value="{{type}}">{{type}}</md-radio-button>
     </md-radio-group>
 
-    <md-button ng-click="test()" class="md-raised">Tartu - Tallin</md-button>
-    <md-button ng-click="calculateAndDisplayRoute()" class="md-raised">Search Places Along</md-button>
+    <md-button ng-click="test()" class="md-raised">Тарту - Таллин</md-button>
+    <md-button ng-click="buildRoute()" class="md-raised">Построить маршрут</md-button>
+    <md-button ng-click="findPlacesAlongRoute()" class="md-raised">Искать места вдлоь маршрута</md-button>
     Distance {{distance}} km.
 </div>
 <div class="flex-container">

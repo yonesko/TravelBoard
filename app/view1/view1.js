@@ -116,7 +116,10 @@ angular.module('myApp.view1', ['ngRoute'])
 
             }
 
-            function findPlacesAlongRoute(route) {
+            $scope.findPlacesAlongRoute = function () {
+                if (!route)
+                    return;
+
                 var dist = distance(route);
                 var step = Math.ceil((2 * radar_radius_m) / (dist / route.overview_path.length));
                 var delay_ms = (second_ms / radar_second_qouta) * 1.1;
@@ -125,13 +128,13 @@ angular.module('myApp.view1', ['ngRoute'])
                     $timeout(radar(route.overview_path[i]), cou * delay_ms);
                 }
                 $timeout(radar(route.overview_path[route.overview_path.length - 1]), cou * delay_ms);
-            }
+            };
 
-            $scope.calculateAndDisplayRoute = function () {
-                $scope.distance = 0;
-
-                if (waypoitns.length == 0)
+            $scope.buildRoute = function () {
+                if (waypoitns.length == 0 || route)
                     return;
+
+                $scope.distance = 0;
 
                 var interpoints = [];
 
@@ -148,8 +151,8 @@ angular.module('myApp.view1', ['ngRoute'])
                     if (status === google.maps.DirectionsStatus.OK) {
                         var route = response.routes[0];
                         $scope.distance = Math.round(distance(route) / kilo);
+                        $scope.$apply();
                         directionsDisplay.setDirections(response);
-                        findPlacesAlongRoute(route);
                     } else {
                         window.alert('Directions request failed due to ' + status);
                     }
@@ -169,7 +172,8 @@ angular.module('myApp.view1', ['ngRoute'])
                     map: mapInstance
                 }));
 
-                $scope.calculateAndDisplayRoute();
+                $scope.buildRoute();
+                $scope.findPlacesAlongRoute();
             };
 
             $scope.foundPlaces = [];
@@ -181,6 +185,7 @@ angular.module('myApp.view1', ['ngRoute'])
             var directionsService = new google.maps.DirectionsService;
             var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
             var waypoitns = [];
+            var route;
             var mapInstance;
             var debug = false;
 
