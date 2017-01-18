@@ -20,7 +20,8 @@ angular.module('myApp.view1', ['ngRoute'])
                 tallin = {lat: 59.41, lng: 24.75},
                 tartu = {lat: 58.36, lng: 26.72},
                 reutov = {lat: 55.759970, lng: 37.859058},
-                places_specification_per_point_quota = 1;
+                places_specification_per_point_quota = 1,
+                supported_place_types = ['museum', 'bar', 'restaurant', 'casino'];
 
             function distance(route) {
                 var sum = 0;
@@ -48,7 +49,7 @@ angular.module('myApp.view1', ['ngRoute'])
                     placesService.radarSearch({
                             location: center,
                             radius: radar_radius_m,
-                            type: placeTypesForSearch
+                            type: $scope.placeTypeForSearch
                         }, function (places, status) {
                             if (status !== google.maps.places.PlacesServiceStatus.OK) {
                                 console.log('findPlacesAlongRoute ' + status);
@@ -66,7 +67,7 @@ angular.module('myApp.view1', ['ngRoute'])
                                                 return;
                                             }
                                             addMarkerForPlace(placeDetail);
-                                            $scope.placesList.push(placeDetail);
+                                            $scope.foundPlaces.push(placeDetail);
                                         })
                                     };
                                 }(place), i * delay_ms);
@@ -132,7 +133,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 }, function (response, status) {
                     if (status === google.maps.DirectionsStatus.OK) {
                         var route = response.routes[0];
-                        $scope.distance = distance(route) / kilo;
+                        $scope.distance = Math.round(distance(route) / kilo);
                         directionsDisplay.setDirections(response);
                         findPlacesAlongRoute(route);
                     } else {
@@ -157,8 +158,10 @@ angular.module('myApp.view1', ['ngRoute'])
                 $scope.calculateAndDisplayRoute();
             };
 
-            $scope.placesList = [];
+            $scope.foundPlaces = [];
             $scope.distance = 0;
+            $scope.placeTypeForSearch = supported_place_types[0];
+            $scope.supported_place_types = supported_place_types;
 
             var placesService;
             var directionsService = new google.maps.DirectionsService;
@@ -166,7 +169,6 @@ angular.module('myApp.view1', ['ngRoute'])
             var waypoitns = [];
             var mapInstance;
             var debug = false;
-            var placeTypesForSearch = 'museum';
 
             NgMap.getMap().then(function (map) {
                 mapInstance = map;
