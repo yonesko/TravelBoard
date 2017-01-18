@@ -59,6 +59,10 @@ angular.module('myApp.view1', ['ngRoute'])
                             var delay_ms = (second_ms / radar_second_qouta) * 1.1;
                             for (var i = 0, place; i < places.length && i < places_specification_per_point_quota; i++) {
                                 place = places[i];
+
+                                if (isPlaceAlreadyFound(place))
+                                    continue;
+
                                 $timeout(function (place) {
                                     return function () {
                                         placesService.getDetails(place, function (placeDetail, status) {
@@ -68,6 +72,7 @@ angular.module('myApp.view1', ['ngRoute'])
                                             }
                                             addMarkerForPlace(placeDetail);
                                             $scope.foundPlaces.push(placeDetail);
+                                            // console.log($scope.foundPlaces)
                                         })
                                     };
                                 }(place), i * delay_ms);
@@ -75,6 +80,13 @@ angular.module('myApp.view1', ['ngRoute'])
                         }
                     )
                 }
+            }
+
+            function isPlaceAlreadyFound(place) {
+                for (var i in $scope.foundPlaces)
+                    if ($scope.foundPlaces[i].place_id == place.place_id)
+                        return true;
+                return false;
             }
 
             function addMarkerForPlace(place) {
@@ -116,6 +128,8 @@ angular.module('myApp.view1', ['ngRoute'])
             }
 
             $scope.calculateAndDisplayRoute = function () {
+                $scope.distance = 0;
+
                 if (waypoitns.length == 0)
                     return;
 
