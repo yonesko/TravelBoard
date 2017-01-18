@@ -1,43 +1,54 @@
-/* app css stylesheet */
-
-.menu {
+.navbar {
     list-style: none;
     border-bottom: 0.1em solid black;
     margin-bottom: 2em;
     padding: 0 0 0.5em;
+
+    display: none;
 }
 
-.menu:before {
+.navbar:before {
     content: "[";
 }
 
-.menu:after {
+.navbar:after {
     content: "]";
 }
 
-.menu > li {
+.navbar > li {
     display: inline;
 }
 
-.menu > li + li:before {
+.navbar > li + li:before {
     content: "|";
     padding-right: 0.3em;
 }
 
+.menu {
+    width:25%;
+}
 ng-map {
-    width: 100%;
-    height: 600px
+    width: 75%;
+    height: 800px;
 }
 
 .repeater-container {
-//display: block;
-    height: 600px;
-    width: 400px;
+    height: 800px;
+    width: 100%;
     overflow: auto;
 }
 
-.item {
-    /* height: 25px; */
-    width: 100%;
-    border-bottom: 1px solid #222;
+
+.flex-container {
+    display: flex;
+    /*width: 400px;*/
+    /*height: 250px;*/
+    /*background-color: lightgrey;*/
+}
+
+.flex-item {
+    /*background-color: cornflowerblue;*/
+    /*width: 100px;*/
+    /*height: 100px;*/
+    /*margin: 10px;*/
 }

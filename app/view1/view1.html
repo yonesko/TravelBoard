@@ -1,9 +1,11 @@
-<div layout="row">
-    <div layout="column">
-        <md-button ng-click="test()" class="md-raised">Tartu - Tallin</md-button>
-        <md-button ng-click="calculateAndDisplayRoute()" class="md-raised">calculateAndDisplayRoute</md-button>
-        Distance {{distance}} km.
-        <md-list vs-repeat class="repeater-container">
+<div>
+    <md-button ng-click="test()" class="md-raised">Tartu - Tallin</md-button>
+    <md-button ng-click="calculateAndDisplayRoute()" class="md-raised">calculateAndDisplayRoute</md-button>
+    Distance {{distance}} km.
+</div>
+<div class="flex-container">
+    <div class="flex-item menu">
+        <md-list vs-repeat="350" class="repeater-container">
             <md-list-item class="md-2-line item" ng-repeat="place in placesList"
                           ng-mouseover="place.denotionMarker.setVisible(true)"
                           ng-mouseleave="place.denotionMarker.setVisible(false)">
@@ -16,7 +18,7 @@
             </md-list-item>
         </md-list>
     </div>
-    <ng-map default-style="false">
+    <ng-map class="flex-item" default-style="false">
         <drawing-manager
                 on-markercomplete="markerDrawed()"
                 drawing-control-options="{position: 'TOP_CENTER',drawingModes:['marker']}"
@@ -25,17 +27,3 @@
         </drawing-manager>
     </ng-map>
 </div>
-
-<!--<md-list>-->
-<!--<md-list-item class="md-2-line" ng-repeat="place in placesList">-->
-<!--<div class="md-list-item-text">-->
-<!--<h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>-->
-<!--<p>{{place.formatted_address}}</p>-->
-<!--<md-list ng-repeat="photo in place.photos">-->
-<!--<md-list-item>-->
-<!--<img ng-src="{{photo.getUrl({'maxWidth': 400, 'maxHeight': 400})}}">-->
-<!--</md-list-item>-->
-<!--</md-list>-->
-<!--</div>-->
-<!--</md-list-item>-->
-<!--</md-list>-->
