@@ -90,7 +90,7 @@ angular.module('myApp.view1', ['ngRoute'])
             }
 
             function addMarkerForPlace(place) {
-                place.marker = new google.maps.Marker({
+                var marker = new google.maps.Marker({
                     map: mapInstance,
                     position: place.geometry.location,
                     icon: {
@@ -104,7 +104,9 @@ angular.module('myApp.view1', ['ngRoute'])
                 place.denotionMarker = new google.maps.Marker({
                     map: mapInstance,
                     position: place.geometry.location,
-                    visible: false
+                    visible: false,
+                    animation: google.maps.Animation.DROP,
+                    clickable: false
                 });
 
                 new MapLabel({
@@ -138,18 +140,18 @@ angular.module('myApp.view1', ['ngRoute'])
 
                 var interpoints = [];
 
-                waypoitns.slice(1, waypoitns.length - 1).forEach(function (e) {
-                    interpoints.push({location: e.getPosition()});
+                waypoitns.slice(1, waypoitns.length - 1).forEach(function (p) {
+                    interpoints.push({location: p});
                 });
 
                 directionsService.route({
-                    origin: waypoitns[0].getPosition(),
+                    origin: waypoitns[0],
                     waypoints: interpoints,
-                    destination: waypoitns[waypoitns.length - 1].getPosition(),
+                    destination: waypoitns[waypoitns.length - 1],
                     travelMode: google.maps.TravelMode.DRIVING
                 }, function (response, status) {
                     if (status === google.maps.DirectionsStatus.OK) {
-                        var route = response.routes[0];
+                        route = response.routes[0];
                         $scope.distance = Math.round(distance(route) / kilo);
                         $scope.$apply();
                         directionsDisplay.setDirections(response);
@@ -160,20 +162,20 @@ angular.module('myApp.view1', ['ngRoute'])
             };
 
             $scope.markerDrawed = function (marker) {
-                waypoitns.push(marker);
+                waypoitns.push(marker.getPosition());
             };
             $scope.test = function () {
-                waypoitns.push(new google.maps.Marker({
+                waypoitns.push((new google.maps.Marker({
                     position: tartu,
                     map: mapInstance
-                }));
-                waypoitns.push(new google.maps.Marker({
+                })).getPosition());
+                waypoitns.push((new google.maps.Marker({
                     position: tallin,
                     map: mapInstance
-                }));
+                })).getPosition());
 
-                $scope.buildRoute();
-                $scope.findPlacesAlongRoute();
+                // $scope.buildRoute();
+                // $scope.findPlacesAlongRoute();
             };
 
             $scope.foundPlaces = [];
@@ -196,6 +198,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
                 directionsDisplay.setMap(map);
                 placesService = new google.maps.places.PlacesService(map);
+                map.mapDrawingManager['0'].drawingMode = google.maps.drawing.OverlayType.MARKER;
             });
         }]);
 
