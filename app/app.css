@@ -25,8 +25,10 @@
 }
 
 .menu {
-    width:25%;
+    width: 25%;
+    word-wrap: break-word;
 }
+
 ng-map {
     width: 75%;
     height: 800px;
@@ -37,7 +39,6 @@ ng-map {
     width: 100%;
     overflow: auto;
 }
-
 
 .flex-container {
     display: flex;

@@ -63,13 +63,12 @@ angular.module('myApp.view1', ['ngRoute'])
                 var request = placesRequestQueue.shift();
                 if (request)
                     request();
-                else
-                    clearInterval(processPlacesRequestIntervalId);
+                // else
+                //     clearInterval(processPlacesRequestIntervalId);
             }
 
             function addToPlacesRequesQueue(request) {
                 placesRequestQueue.push(request);
-                processPlacesRequestIntervalId = setInterval(processPlacesRequestQueue, places_request_delay_ms);
             }
 
             $scope.cancelVisit = function (place) {
@@ -224,6 +223,8 @@ angular.module('myApp.view1', ['ngRoute'])
                 directionsDisplay.setMap(map);
                 placesService = new google.maps.places.PlacesService(map);
                 map.mapDrawingManager['0'].drawingMode = google.maps.drawing.OverlayType.MARKER;
+
+                processPlacesRequestIntervalId = setInterval(processPlacesRequestQueue, places_request_delay_ms);
             });
         }]);
 
