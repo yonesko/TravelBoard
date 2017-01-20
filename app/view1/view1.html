@@ -13,13 +13,14 @@
     <div class="flex-item menu">
         <md-list  class="repeater-container">
             <md-list-item class="md-2-line" ng-repeat="place in foundPlaces"
-                          ng-mouseover="place.denotionMarker.setVisible(true)"
-                          ng-mouseleave="place.denotionMarker.setVisible(false)">
+                          ng-mouseover="place.marker.setAnimation(google.maps.Animation.BOUNCE)"
+                          ng-mouseleave="place.marker.setAnimation(null)">
                 <div class="md-list-item-text">
                     <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
                     <p>{{place.types.join()}}</p>
                     <p>{{place.formatted_address}}</p>
                     <img ng-src="{{place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200})}}">
+                    <md-checkbox>Заехать</md-checkbox>
                 </div>
             </md-list-item>
         </md-list>
