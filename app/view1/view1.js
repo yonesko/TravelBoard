@@ -51,7 +51,7 @@ angular.module('myApp.view1', ['ngRoute'])
                     clickable: false
                 });
                 //add place name on the map
-                new MapLabel({
+                place.mapLabel = new MapLabel({
                     text: place.name.length > 25 ? place.name.substring(0, 25) + '...' : place.name,
                     position: place.geometry.location,
                     map: mapInstance,
@@ -78,11 +78,11 @@ angular.module('myApp.view1', ['ngRoute'])
             //add a waypoint and marker for it
             $scope.visit = function (place) {
                 var ind;
-                if ((ind = waypoitns.indexOf(place.marker)) >= 0) {
-                    waypoitns.splice(ind, 1);
+                if ((ind = waypoints.indexOf(place.marker)) >= 0) {
+                    waypoints.splice(ind, 1);
                     $scope.buildRoute();
                 } else {
-                    waypoitns.splice(1, 0, place.marker);
+                    waypoints.splice(1, 0, place.marker);
                     $scope.buildRoute();
                 }
             };
@@ -148,18 +148,21 @@ angular.module('myApp.view1', ['ngRoute'])
             };
 
             $scope.buildRoute = function () {
+                if (waypoints.length == 0)
+                    return;
+
                 $scope.distance = 0;
 
                 var interpoints = [];
 
-                waypoitns.slice(1, waypoitns.length - 1).forEach(function (p) {
+                waypoints.slice(1, waypoints.length - 1).forEach(function (p) {
                     interpoints.push({location: p.getPosition()});
                 });
 
                 directionsService.route({
-                    origin: waypoitns[0].getPosition(),
+                    origin: waypoints[0].getPosition(),
                     waypoints: interpoints,
-                    destination: waypoitns[waypoitns.length - 1].getPosition(),
+                    destination: waypoints[waypoints.length - 1].getPosition(),
                     travelMode: google.maps.TravelMode.DRIVING,
                     optimizeWaypoints: true
                 }, function (response, status) {
@@ -175,29 +178,48 @@ angular.module('myApp.view1', ['ngRoute'])
             };
 
             $scope.markerDrawed = function (marker) {
-                if (waypoitns.length == 0) {
+                if (waypoints.length == 0) {
                     marker.setLabel('A');
                 }
-                if (waypoitns.length >= 1) {
-                    if (waypoitns.length >= 2) {
-                        waypoitns[waypoitns.length - 1].setLabel(null);
+                if (waypoints.length >= 1) {
+                    if (waypoints.length >= 2) {
+                        waypoints[waypoints.length - 1].setLabel(null);
                     }
                     marker.setLabel('B');
                 }
-                waypoitns.push(marker);
+                waypoints.push(marker);
             };
 
             $scope.test = function () {
-                waypoitns.push((new google.maps.Marker({
+                waypoints.push((new google.maps.Marker({
                     position: tartu,
                     map: mapInstance,
                     label: 'A'
                 })));
-                waypoitns.push((new google.maps.Marker({
+                waypoints.push((new google.maps.Marker({
                     position: tallin,
                     map: mapInstance,
                     label: 'B'
                 })));
+            };
+
+            $scope.clearInput = function () {
+                //clear view
+                waypoints.forEach(function (marker) {
+                    marker.setMap(null);
+                    marker = null;
+                });
+                $scope.foundPlaces.forEach(function (place) {
+                    place.marker.setMap(null);
+                    place.marker = null;
+                    place.mapLabel.setMap(null);
+                    place.mapLabel = null;
+                });
+                directionsDisplay.setDirections({routes: []});
+                //clear model
+                waypoints = [];
+                $scope.foundPlaces = [];
+                route = null;
             };
 
             $scope.foundPlaces = [];
@@ -207,7 +229,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
             var directionsService = new google.maps.DirectionsService;
             var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
-            var waypoitns = [];
+            var waypoints = [];
             var route;
             var mapInstance;
             var debug = false;
