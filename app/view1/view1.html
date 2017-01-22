@@ -20,7 +20,7 @@
                     <p>{{place.types.join()}}</p>
                     <p>{{place.formatted_address}}</p>
                     <img ng-src="{{place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200})}}">
-                    <md-checkbox>Заехать</md-checkbox>
+                    <md-checkbox ng-click="visit(place)">Заехать</md-checkbox>
                 </div>
             </md-list-item>
         </md-list>

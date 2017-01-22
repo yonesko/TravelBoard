@@ -19,7 +19,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 tartu = {lat: 58.36, lng: 26.72},
                 reutov = {lat: 55.759970, lng: 37.859058},
                 places_specification_per_point_quota = 1,
-                places_request_delay_ms = 20,
+                places_request_delay_ms = 100,
                 supported_place_types = ['museum', 'bar', 'restaurant', 'casino'];
 
             function distance(route) {
@@ -32,7 +32,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
             function isPlaceAlreadyFound(place) {
                 for (var i = 0; i < $scope.foundPlaces.length; i++)
-                    if ($scope.foundPlaces[i].place_id == place.place_id)
+                    if ($scope.foundPlaces[i].place_id === place.place_id)
                         return true;
                 return false;
             }
@@ -77,21 +77,14 @@ angular.module('myApp.view1', ['ngRoute'])
 
             //add a waypoint and marker for it
             $scope.visit = function (place) {
-                console.log('visit ' + place.name);
-                // var ind;
-                // if ((ind = waypoitns.indexOf(place.geometry.location)) >= 0) {
-                //     console.log('remove')
-                //     waypoitns.splice(ind, 1);
-                //     place.visitMarker.setMap(null);
-                //     place.visitMarker = null;
-                // }
-                //
-                // place.visitMarker = new google.maps.Marker({
-                //     position: place.geometry.location,
-                //     map: mapInstance,
-                //     label: String(waypoitns.length + 1)
-                // });
-                // waypoitns.splice(1, 0, place.geometry.location);
+                var ind;
+                if ((ind = waypoitns.indexOf(place.marker)) >= 0) {
+                    waypoitns.splice(ind, 1);
+                    $scope.buildRoute();
+                } else {
+                    waypoitns.splice(1, 0, place.marker);
+                    $scope.buildRoute();
+                }
             };
 
 
@@ -160,43 +153,51 @@ angular.module('myApp.view1', ['ngRoute'])
                 var interpoints = [];
 
                 waypoitns.slice(1, waypoitns.length - 1).forEach(function (p) {
-                    interpoints.push({location: p});
+                    interpoints.push({location: p.getPosition()});
                 });
 
                 directionsService.route({
-                    origin: waypoitns[0],
+                    origin: waypoitns[0].getPosition(),
                     waypoints: interpoints,
-                    destination: waypoitns[waypoitns.length - 1],
+                    destination: waypoitns[waypoitns.length - 1].getPosition(),
                     travelMode: google.maps.TravelMode.DRIVING,
                     optimizeWaypoints: true
                 }, function (response, status) {
                     if (status === google.maps.DirectionsStatus.OK) {
                         route = response.routes[0];
                         $scope.distance = Math.round(distance(route) / kilo);
-                        $scope.$apply();
                         directionsDisplay.setDirections(response);
+                        $scope.$apply();
                     } else {
                         $log.error('Directions request failed due to ' + status);
                     }
                 });
             };
 
-
             $scope.markerDrawed = function (marker) {
-                marker.setLabel(String(waypoitns.length + 1));
-                waypoitns.push(marker.getPosition());
+                if (waypoitns.length == 0) {
+                    marker.setLabel('A');
+                }
+                if (waypoitns.length >= 1) {
+                    if (waypoitns.length >= 2) {
+                        waypoitns[waypoitns.length - 1].setLabel(null);
+                    }
+                    marker.setLabel('B');
+                }
+                waypoitns.push(marker);
             };
+
             $scope.test = function () {
                 waypoitns.push((new google.maps.Marker({
                     position: tartu,
                     map: mapInstance,
-                    label: String(waypoitns.length + 1)
-                })).getPosition());
+                    label: 'A'
+                })));
                 waypoitns.push((new google.maps.Marker({
                     position: tallin,
                     map: mapInstance,
-                    label: String(waypoitns.length + 1)
-                })).getPosition());
+                    label: 'B'
+                })));
             };
 
             $scope.foundPlaces = [];
