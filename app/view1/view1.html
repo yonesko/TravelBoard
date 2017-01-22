@@ -1,22 +1,20 @@
-<div layout="column">
-
+<section layout="row" layout-sm="column" layout-align="center center">
     <md-radio-group ng-model="placeTypeForSearch">
         <md-radio-button ng-repeat="type in supported_place_types" value="{{type}}">{{type}}</md-radio-button>
     </md-radio-group>
-
     <md-button ng-click="test()" class="md-raised">Тарту - Таллин</md-button>
     <md-button ng-click="buildRoute()" class="md-raised">Построить маршрут</md-button>
-    <md-button ng-click="findPlacesAlongRoute()" class="md-raised">Искать места вдлоь маршрута</md-button>
+    <md-button ng-click="findPlacesAlongRoute()" class="md-raised">Искать места вдоль маршрута</md-button>
     <md-button ng-click="clearInput()" class="md-raised">Очистить</md-button>
-    Distance {{distance}} km.
-</div>
-<div class="flex-container">
-    <div class="flex-item menu">
-        <md-list class="repeater-container">
-            <md-list-item class="md-2-line" ng-repeat="place in foundPlaces"
+</section>
+Distance {{distance}} km.
+<section class="" layout="row">
+    <md-content class="menu" >
+        <md-list class="">
+            <md-list-item class="" ng-repeat="place in foundPlaces"
                           ng-mouseover="place.marker.setAnimation(google.maps.Animation.BOUNCE)"
                           ng-mouseleave="place.marker.setAnimation(null)">
-                <div class="md-list-item-text">
+                <div class="">
                     <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
                     <p>{{place.types.join()}}</p>
                     <p>{{place.formatted_address}}</p>
@@ -25,7 +23,7 @@
                 </div>
             </md-list-item>
         </md-list>
-    </div>
+    </md-content>
     <ng-map class="flex-item" default-style="false">
         <drawing-manager
                 on-markercomplete="markerDrawed()"
@@ -33,4 +31,4 @@
                 drawingControl="true">
         </drawing-manager>
     </ng-map>
-</div>
+</section>

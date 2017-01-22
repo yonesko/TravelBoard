@@ -26,7 +26,8 @@
 
 .menu {
     width: 25%;
-    word-wrap: break-word;
+    height: 800px;
+    /*word-wrap: break-word;*/
 }
 
 ng-map {
