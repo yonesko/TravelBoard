@@ -15,6 +15,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 radar_radius_m = 20 * kilo,
                 centralRussia = {lat: 57.452744, lng: 33.238945},
                 eestiCenter = new google.maps.LatLng(58.85, 25.64),
+                australia = new google.maps.LatLng(-36.40, 145.33),
                 tallin = {lat: 59.41, lng: 24.75},
                 tartu = {lat: 58.36, lng: 26.72},
                 reutov = {lat: 55.759970, lng: 37.859058},
@@ -31,6 +32,7 @@ angular.module('myApp.view1', ['ngRoute'])
             }
 
             function isPlaceAlreadyFound(place) {
+                // $log.log(place, $scope.foundPlaces);
                 for (var i = 0; i < $scope.foundPlaces.length; i++)
                     if ($scope.foundPlaces[i].place_id === place.place_id)
                         return true;
@@ -96,7 +98,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 var step = Math.ceil((2 * radar_radius_m) / (dist / route.overview_path.length));
 
                 for (var i = 0; i < route.overview_path.length; i += step) {
-                    if (debug) {
+                    if ($scope.debug) {
                         new google.maps.Circle({
                             strokeColor: '#FF0000',
                             strokeOpacity: 0.8,
@@ -124,22 +126,21 @@ angular.module('myApp.view1', ['ngRoute'])
                                 for (var i = 0, place; i < places.length && i < places_specification_per_point_quota; i++) {
                                     place = places[i];
 
-                                    if (isPlaceAlreadyFound(place))
-                                        continue;
-
-                                    addToPlacesRequesQueue((function (place) {
-                                        return function () {
-                                            placesService.getDetails(place, function (placeDetail, status) {
-                                                if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                                                    $log.error('findPlacesAlongRoute getDetails ' + status);
-                                                    return;
-                                                }
-                                                addMarkerForPlace(placeDetail);
-                                                $scope.foundPlaces.push(placeDetail);
-                                                $scope.$apply();
-                                            });
-                                        }
-                                    })(place));
+                                    if (!isPlaceAlreadyFound(place)) {
+                                        addToPlacesRequesQueue((function (place) {
+                                            return function () {
+                                                placesService.getDetails(place, function (placeDetail, status) {
+                                                    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                                                        $log.error('findPlacesAlongRoute getDetails ' + status);
+                                                        return;
+                                                    }
+                                                    addMarkerForPlace(placeDetail);
+                                                    $scope.foundPlaces.push(placeDetail);
+                                                    $scope.$apply();
+                                                });
+                                            }
+                                        })(place));
+                                    }
                                 }
                             });
                         }
@@ -222,6 +223,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 route = null;
             };
 
+            $scope.debug = true;
             $scope.foundPlaces = [];
             $scope.distance = 0;
             $scope.placeTypeForSearch = supported_place_types[0];
@@ -232,7 +234,6 @@ angular.module('myApp.view1', ['ngRoute'])
             var waypoints = [];
             var route;
             var mapInstance;
-            var debug = false;
 
             var placesService;
             var placesRequestQueue = [];
@@ -240,7 +241,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
             NgMap.getMap().then(function (map) {
                 mapInstance = map;
-                map.setCenter(eestiCenter);
+                map.setCenter(australia);
                 map.setZoom(8);
 
                 directionsDisplay.setMap(map);

@@ -16,6 +16,7 @@ Distance {{distance}} km.
                           ng-mouseleave="place.marker.setAnimation(null)">
                 <div class="">
                     <h3><a href="{{place.url}}">{{$index + 1}} {{place.name}}</a></h3>
+                    <p ng-if="debug">{{place.place_id}}</p>
                     <p>{{place.types.join()}}</p>
                     <p>{{place.formatted_address}}</p>
                     <img ng-src="{{place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200})}}">
