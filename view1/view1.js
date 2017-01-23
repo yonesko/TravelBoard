@@ -111,40 +111,56 @@ angular.module('myApp.view1', ['ngRoute'])
                         });
                     }
 
-                    addToPlacesRequesQueue((function (center) {
+                    var radarWrapper = function (center) {
                         return function () {
                             placesService.radarSearch({
                                 location: center,
                                 radius: radar_radius_m,
                                 type: $scope.placeTypeForSearch
                             }, function (places, status) {
+                                if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+                                    setTimeout(radarWrapper(center), places_request_delay_ms);
+                                    // $log.error('findPlacesAlongRoute radarSearch ' + status);
+                                    return;
+                                }
+
                                 if (status !== google.maps.places.PlacesServiceStatus.OK) {
                                     $log.error('findPlacesAlongRoute radarSearch ' + status);
                                     return;
                                 }
 
+                                var detailsWrapper = function (place) {
+                                    return function () {
+                                        placesService.getDetails(place, function (placeDetail, status) {
+                                            if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+                                                setTimeout(detailsWrapper(place), places_request_delay_ms);
+                                                // $log.error('findPlacesAlongRoute radarSearch ' + status);
+                                                return;
+                                            }
+
+                                            if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                                                $log.error('findPlacesAlongRoute getDetails ' + status);
+                                                return;
+                                            }
+                                            addMarkerForPlace(placeDetail);
+                                            $scope.foundPlaces.push(placeDetail);
+                                            $scope.$apply();
+                                        });
+                                    }
+                                };
+
                                 for (var i = 0, place; i < places.length && i < places_specification_per_point_quota; i++) {
                                     place = places[i];
 
                                     if (!isPlaceAlreadyFound(place)) {
-                                        addToPlacesRequesQueue((function (place) {
-                                            return function () {
-                                                placesService.getDetails(place, function (placeDetail, status) {
-                                                    if (status !== google.maps.places.PlacesServiceStatus.OK) {
-                                                        $log.error('findPlacesAlongRoute getDetails ' + status);
-                                                        return;
-                                                    }
-                                                    addMarkerForPlace(placeDetail);
-                                                    $scope.foundPlaces.push(placeDetail);
-                                                    $scope.$apply();
-                                                });
-                                            }
-                                        })(place));
+                                        setTimeout(detailsWrapper(place), places_request_delay_ms);
                                     }
                                 }
                             });
                         }
-                    })(route.overview_path[i]));
+                    };
+
+                    setTimeout(radarWrapper(route.overview_path[i]), places_request_delay_ms);
                 }
             };
 
@@ -223,7 +239,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 route = null;
             };
 
-            $scope.debug = true;
+            $scope.debug = false;
             $scope.foundPlaces = [];
             $scope.distance = 0;
             $scope.placeTypeForSearch = supported_place_types[0];
@@ -241,7 +257,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
             NgMap.getMap().then(function (map) {
                 mapInstance = map;
-                map.setCenter(australia);
+                map.setCenter(eestiCenter);
                 map.setZoom(8);
 
                 directionsDisplay.setMap(map);
