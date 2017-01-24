@@ -61,23 +61,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 });
             }
 
-            function processPlacesRequestQueue() {
-                var request = placesRequestQueue.shift();
-                if (request)
-                    request();
-                // else
-                //     clearInterval(processPlacesRequestIntervalId);
-            }
-
-            function addToPlacesRequesQueue(request) {
-                placesRequestQueue.push(request);
-            }
-
-            $scope.cancelVisit = function (place) {
-                console.log('cancel ' + place.name);
-            };
-
-            //add a waypoint and marker for it
+            //add a waypoint and rebuild route
             $scope.visit = function (place) {
                 var ind;
                 if ((ind = waypoints.indexOf(place.marker)) >= 0) {
@@ -88,7 +72,6 @@ angular.module('myApp.view1', ['ngRoute'])
                     $scope.buildRoute();
                 }
             };
-
 
             $scope.findPlacesAlongRoute = function () {
                 if (!route)
@@ -250,10 +233,7 @@ angular.module('myApp.view1', ['ngRoute'])
             var waypoints = [];
             var route;
             var mapInstance;
-
             var placesService;
-            var placesRequestQueue = [];
-            var processPlacesRequestIntervalId;
 
             NgMap.getMap().then(function (map) {
                 mapInstance = map;
@@ -263,8 +243,6 @@ angular.module('myApp.view1', ['ngRoute'])
                 directionsDisplay.setMap(map);
                 placesService = new google.maps.places.PlacesService(map);
                 map.mapDrawingManager['0'].drawingMode = google.maps.drawing.OverlayType.MARKER;
-
-                processPlacesRequestIntervalId = setInterval(processPlacesRequestQueue, places_request_delay_ms);
             });
         }]);
 
