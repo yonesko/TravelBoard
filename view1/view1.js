@@ -8,8 +8,8 @@ angular.module('myApp.view1', ['ngRoute'])
             controller: 'View1Ctrl'
         });
     }])
-    .controller('View1Ctrl', ['$scope', 'NgMap', '$timeout', '$log',
-        function ($scope, NgMap, $timeout, $log) {
+    .controller('View1Ctrl', ['$scope', 'NgMap', '$timeout', '$log', '$mdDialog',
+        function ($scope, NgMap, $timeout, $log, $mdDialog) {
             const
                 kilo = 1000,
                 radar_radius_m = 20 * kilo,
@@ -44,14 +44,16 @@ angular.module('myApp.view1', ['ngRoute'])
                 place.marker = new google.maps.Marker({
                     map: mapInstance,
                     position: place.geometry.location,
-                    icon: {
-                        url: place.icon,
-                        anchor: new google.maps.Point(10, 10),
-                        scaledSize: new google.maps.Size(20, 34)
-                    },
                     title: place.name,
                     clickable: false
                 });
+                if (place.icon) {
+                    place.marker.icon = {
+                        url: place.icon,
+                        anchor: new google.maps.Point(10, 10),
+                        scaledSize: new google.maps.Size(20, 34)
+                    }
+                }
                 //add place name on the map
                 place.mapLabel = new MapLabel({
                     text: place.name.length > 25 ? place.name.substring(0, 25) + '...' : place.name,
@@ -222,6 +224,55 @@ angular.module('myApp.view1', ['ngRoute'])
                 route = null;
             };
 
+            $scope.showImportPrompt = function (ev) {
+                // Appending dialog to document.body to cover sidenav in docs app
+                var confirm = $mdDialog.prompt()
+                    // .title('What would you name your dog?')
+                    .textContent('К сожалению, файлы с диска пока не принимаются.' +
+                        'Разместите их на любом хостинге (DropBox, GitHub) и дайте ссылку.')
+                    .placeholder('URL KML-файла')
+                    .ariaLabel('Dog name')
+                    .targetEvent(ev)
+                    .ok('OK')
+                    .cancel('Cancel');
+
+                $mdDialog.show(confirm).then(function (result) {
+                    if (!result)
+                        result = 'https://raw.githubusercontent.com/yonesko/TravelBoard/master/westcampus.kml';
+
+                    $.get(result, function (data, status) {
+                        $(data).find("Placemark").each(function (index, value) {
+                            var coordsText = $(this).find("coordinates").text();
+                            var name = $(this).find("name").text();
+
+                            var coords = coordsText.split(",");
+                            var pos = new google.maps.LatLng(coords[1], coords[0]);
+
+                            var place = {
+                                marker: new google.maps.Marker({
+                                    map: mapInstance,
+                                    position: pos,
+                                    title: name,
+                                    clickable: false
+                                }),
+                                name: name,
+                                geometry: {
+                                    location: pos
+                                }
+                            };
+
+                            addMarkerForPlace(place);
+                            $scope.foundPlaces.push(place);
+                            $scope.$apply();
+                        });
+                    });
+
+
+                }, function () {
+                    // $scope.status = 'You didn\'t name your dog.';
+                });
+            };
+
             $scope.debug = false;
             $scope.foundPlaces = [];
             $scope.distance = 0;
@@ -234,11 +285,12 @@ angular.module('myApp.view1', ['ngRoute'])
             var route;
             var mapInstance;
             var placesService;
+            //https://raw.githubusercontent.com/yonesko/TravelBoard/master/test.kml
 
             NgMap.getMap().then(function (map) {
                 mapInstance = map;
-                map.setCenter(eestiCenter);
-                map.setZoom(8);
+                map.setCenter({lng: -122.09, lat: 37.42});
+                map.setZoom(12);
 
                 directionsDisplay.setMap(map);
                 placesService = new google.maps.places.PlacesService(map);
